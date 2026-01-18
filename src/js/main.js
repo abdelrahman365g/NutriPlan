@@ -47,7 +47,18 @@ const searchProductInput = document.querySelector("#product-search-input");
 const searchProductButton = document.querySelector("#search-product-btn");
 const barcodeInput = document.querySelector("#barcode-input");
 const barcodeButton = document.querySelector("#lookup-barcode-btn");
+const toggleMenuButton = document.querySelector("#header-menu-btn");
+const sidebarCloseBtn = document.querySelector("#sidebar-close-btn");
+const sidebar = document.querySelector("#sidebar");
+const categoryButtons = document.querySelectorAll(".product-category-btn");
 let currentMeal ;
+const categoriesKeywords= {
+  snack: "snack",
+  beverage: "drink",
+  breakfast: "cereal",
+  dessert: "chocolate",
+  dairy: "milk"
+};
 
 async function loadAll() {
   loadingScreen.classList.remove("loading");
@@ -198,3 +209,32 @@ barcodeButton.addEventListener("click",async()=>{
   const products = await getProductsBarcode(barcodeInput.value.trim());
   renderScannerProducts([products]);
 })
+toggleMenuButton.addEventListener("click",()=>{
+  sidebar.classList.add("open");
+})
+sidebarCloseBtn.addEventListener("click",()=>{
+  sidebar.classList.remove("open");
+})
+document.addEventListener("click", (e) => {
+  if (
+    !sidebar.contains(e.target) &&
+    !toggleMenuButton.contains(e.target)
+  ) {
+    sidebar.classList.remove("open");
+  }
+});
+
+categoryButtons.forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const categoryKey = btn.dataset.query;
+    const searchTerm = categoriesKeywords[categoryKey];
+
+    if (!searchTerm) return;
+
+    categoryButtons.forEach(b => b.classList.remove("ring-2", "ring-emerald-500"));
+    btn.classList.add("ring-2", "ring-emerald-500");
+
+    const products = await getProductsName(searchTerm);
+    renderScannerProducts(products);
+  });
+});
